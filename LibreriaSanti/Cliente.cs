@@ -6,11 +6,18 @@ using System.Threading.Tasks;
 
 namespace LibreriaSanti
 {
-    public class Cliente
+    public class Cliente : ICliente
     {
         public string ClienteNombre { get; set; }
-        public int Descuento = 10;
+        public int Descuento { get; set; }
+        public bool IsPremium { get; set; }
         public int OrdenTotal { get; set; }
+
+        public Cliente()
+        {
+            IsPremium = false;
+            Descuento = 10;
+        }
         public string CrearNombreCompleto(string nombre, string apellido)
         {
 
