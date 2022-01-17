@@ -1,21 +1,20 @@
 ﻿using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace LibreriaSanti
 {
-    [TestFixture]
-    public class CuentaBancariaNUnitTest
+    public class CuentaBancariaXUnitTest
     {
         private CuentaBancaria cuenta;
-    
-        [SetUp]
-        public void Setup()
+
+        public CuentaBancariaXUnitTest()
         {
+
         }
 
         /*
@@ -26,11 +25,11 @@ namespace LibreriaSanti
 
             var resultado = cuentaBancaria.Deposito(100);
             
-            Assert.IsTrue(resultado);
-            Assert.That(cuentaBancaria.GetBalance,Is.EqualTo(100));
+            Assert.True(resultado);
+            Assert.Equal(100,cuentaBancaria.GetBalance);
         }
         */
-        [Test]
+        [Fact]
         public void Deposito_InputMonto100Mocking_ReturnsTrue()
         {
             /* Mock que representa cualquier implementacion, ya sea clase o interface, no tiene logica */
@@ -40,13 +39,13 @@ namespace LibreriaSanti
 
             var resultado = cuentaBancaria.Deposito(100);
 
-            Assert.IsTrue(resultado);
-            Assert.That(cuentaBancaria.GetBalance, Is.EqualTo(100));
+            Assert.True(resultado);
+            Assert.Equal(100,cuentaBancaria.GetBalance());
         }
 
-        [Test]
-        [TestCase(200,100)]
-        [TestCase(200,150)]
+        [Theory]
+        [InlineData(200, 100)]
+        [InlineData(200, 150)]
 
         public void Retiro_Retiro100ConBalance200_ReturnsTrue(int balance, int retiro)
         {
@@ -54,11 +53,11 @@ namespace LibreriaSanti
             var loggerMock = new Mock<ILoggerGeneral>();
 
             /* - - - - - - - Simulando - - - - - -  */
-            
-                /* Indicando el metodo que quiero que realice, pasandole cualquier string y que retorne true */
-                loggerMock.Setup(x => x.LogDatabase(It.IsAny<string>())).Returns(true);
-                /* Indicando el metodo que quiero que realice, pasandole cualquier int y que retorne true */
-                loggerMock.Setup(x => x.LogBalanceDespuesRetiro(It.Is<int>(x=> x>0))).Returns(true);
+
+            /* Indicando el metodo que quiero que realice, pasandole cualquier string y que retorne true */
+            loggerMock.Setup(x => x.LogDatabase(It.IsAny<string>())).Returns(true);
+            /* Indicando el metodo que quiero que realice, pasandole cualquier int y que retorne true */
+            loggerMock.Setup(x => x.LogBalanceDespuesRetiro(It.Is<int>(x => x > 0))).Returns(true);
             /* Mock Listo para utilizarse */
 
 
@@ -67,12 +66,12 @@ namespace LibreriaSanti
 
             var resultado = cuentaBancaria.Retiro(retiro);
 
-            Assert.IsTrue(resultado);
+            Assert.True(resultado);
         }
 
 
-        [Test]
-        [TestCase(200, 100)]
+        [Theory]
+        [InlineData(200, 100)]
         public void Retiro_Retiro300ConBalance200_ReturnsFalse(int balance, int retiro)
         {
             /* Logger Mocking */
@@ -81,11 +80,11 @@ namespace LibreriaSanti
             /* - - - - - - - Simulando - - - - - -  */
 
             /* Indicando el metodo que quiero que realice, pasandole cualquier int y que retorne true */
-              // 1 opcion : loggerMock.Setup(x => x.LogBalanceDespuesRetiro(It.Is<int>(x => x < 0))).Returns(false);
+            // 1 opcion : loggerMock.Setup(x => x.LogBalanceDespuesRetiro(It.Is<int>(x => x < 0))).Returns(false);
 
-                                                                                 // Vlr Minimo posible hasta -1
-              loggerMock.Setup(x => x.LogBalanceDespuesRetiro(It.IsInRange<int>(int.MinValue , -1 , Moq.Range.Inclusive))).Returns(false);
-              
+            // Vlr Minimo posible hasta -1
+            loggerMock.Setup(x => x.LogBalanceDespuesRetiro(It.IsInRange<int>(int.MinValue, -1, Moq.Range.Inclusive))).Returns(false);
+
             /* Mock Listo para utilizarse */
 
 
@@ -94,12 +93,12 @@ namespace LibreriaSanti
 
             var resultado = cuentaBancaria.Retiro(retiro);
 
-            Assert.IsFalse(resultado);
+            Assert.False(resultado);
         }
 
 
         /* ´Prueba sobre un objeto clase tipo Moc Dependencia (parametro de entrada) */
-        [Test]
+        [Fact]
         public void CuentaBancariaLoggerGeneral_LogMocking_ReturnTrue()
         {
             var loggerGeneralMock = new Mock<ILoggerGeneral>();
@@ -109,12 +108,12 @@ namespace LibreriaSanti
 
             var resultado = loggerGeneralMock.Object.MessageConReturnString("HOla saNti");
 
-            Assert.That(resultado, Is.EqualTo(textoPrueba));
+            Assert.Equal(textoPrueba, resultado);
         }
 
 
         /* ´Prueba sobre un objeto clase tipo Moc Dependencia (parametro de salida out) */
-        [Test]
+        [Fact]
         public void CuentaBancariaLoggerGeneral_LogMockingOutPut_ReturnTrue()
         {
             var loggerGeneralMock = new Mock<ILoggerGeneral>();
@@ -125,33 +124,33 @@ namespace LibreriaSanti
             string parametroOut = "";
             var resultado = loggerGeneralMock.Object.MessageConOutParametroReturnBoolean("Santi", out parametroOut);
 
-            Assert.IsTrue(resultado);
+            Assert.True(resultado);
         }
 
         //Ref quiere decir que hara referencia a un objeto que ya fue creado antes
-        [Test]
+        [Fact]
         public void CuentaBancariaLoggerGeneral_LogMockingObjetoRef_ReturnTrue()
         {
             var loggerGeneralMock = new Mock<ILoggerGeneral>();
-            
+
             Cliente cliente = new();
             Cliente clienteNoUsado = new();
 
-            
+
             loggerGeneralMock.Setup(x => x.MessageConObjetoReferenciaReturnBoolean(ref cliente)).Returns(true);
 
             string parametroOut = "";
             var resultado = loggerGeneralMock.Object.MessageConOutParametroReturnBoolean("Santi", out parametroOut);
 
             /* tiene que devolver true porque le esta pasando un objeto que ya ha sido seteado en el setup del metodo */
-            Assert.IsTrue(loggerGeneralMock.Object.MessageConObjetoReferenciaReturnBoolean(ref cliente));
-            
+            Assert.True(loggerGeneralMock.Object.MessageConObjetoReferenciaReturnBoolean(ref cliente));
+
             /* Retorna false porque no esta seteando el objeto en el setup del metodo principal  */
-            Assert.IsFalse(loggerGeneralMock.Object.MessageConObjetoReferenciaReturnBoolean(ref clienteNoUsado));
+            Assert.False(loggerGeneralMock.Object.MessageConObjetoReferenciaReturnBoolean(ref clienteNoUsado));
         }
 
         /* Trabajando con las propiedades que contiene a un objeto de tipo MOC*/
-        [Test]
+        [Fact]
         public void CuentaBancariaLoggerGeneral_LogMockingPropiedadPrioridadTipo_ReturnsTrue()
         {
             var loggerGeneralMock = new Mock<ILoggerGeneral>();
@@ -167,8 +166,8 @@ namespace LibreriaSanti
 
             loggerGeneralMock.Object.PrioridadLogger = 100;
 
-            Assert.That(loggerGeneralMock.Object.TipoLogger , Is.EqualTo("warning"));
-            Assert.That(loggerGeneralMock.Object.PrioridadLogger , Is.EqualTo(100));
+            Assert.Equal("warning",loggerGeneralMock.Object.TipoLogger);
+            Assert.Equal(100,loggerGeneralMock.Object.PrioridadLogger);
 
             //CALLBACKS
             // evento que se dispara inmediatamente culmina la ejecucion del emtodo principal que se está evaluando.
@@ -178,17 +177,17 @@ namespace LibreriaSanti
              );
             loggerGeneralMock.Object.LogDatabase("Gonzalez");
 
-            Assert.That(textoTemporal, Is.EqualTo("Santi Gonzalez"));
+            Assert.Equal("Santi Gonzalez",textoTemporal);
         }
 
 
-        [Test]
+        [Fact]
         public void CuentaBancariaLoggerGeneral_VerifyEjemplo()
         {
             var loggerGeneralMock = new Mock<ILoggerGeneral>();
             CuentaBancaria cuentaBancaria = new(loggerGeneralMock.Object);
             cuentaBancaria.Deposito(100);
-            Assert.That(cuentaBancaria.GetBalance, Is.EqualTo(100));
+            Assert.Equal(100,cuentaBancaria.GetBalance());
 
             /* Verificar si .Message se llama 3 veces al metodo*/
             loggerGeneralMock.Verify(x => x.Message(It.IsAny<string>()), Times.Exactly(3));
@@ -198,9 +197,6 @@ namespace LibreriaSanti
             loggerGeneralMock.VerifySet(x => x.PrioridadLogger = 100, Times.Once);
             /* Cuantas veces le aplicas get a una propiedad en el metodo(1) */
             loggerGeneralMock.VerifyGet(x => x.PrioridadLogger, Times.Once);
-
-
-
 
         }
 

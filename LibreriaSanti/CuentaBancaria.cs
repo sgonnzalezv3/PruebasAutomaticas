@@ -19,6 +19,10 @@ namespace LibreriaSanti
         public bool Deposito(int monto){
 
             _loggerGeneral.Message($"Está depositando con la cantidad de: {monto}");
+            _loggerGeneral.Message($"Es otro texto");
+            _loggerGeneral.Message($"Santi Gonzalez V");
+            _loggerGeneral.PrioridadLogger = 100;
+            var prioridad = _loggerGeneral.PrioridadLogger;
             Balance += monto;
             return true;
         }
@@ -27,10 +31,12 @@ namespace LibreriaSanti
         {
             if(monto <= Balance)
             {
+                _loggerGeneral.LogDatabase("Monto de retiro: " + monto.ToString());
                 Balance -= monto;
-                return true;
+                return _loggerGeneral.LogBalanceDespuesRetiro(Balance);
             }
-            return false;
+            return _loggerGeneral.LogBalanceDespuesRetiro(Balance - monto);
+
         }
         public int GetBalance()
         {
